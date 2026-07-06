@@ -27,3 +27,12 @@ export const login = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+
+export const getMe = async (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "User retrieved successfully",
+        data: req.user
+    });
+};
