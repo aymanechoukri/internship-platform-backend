@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
 
@@ -10,9 +11,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "fuck aymane" });
+  res.json({ success: true, message: "Welcome to the Internship Platform API" });
 });
 
 export default app;
