@@ -14,7 +14,10 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "Welcome to the Internship Platform API" });
+  res.json({
+    success: true,
+    message: "Welcome to the Internship Platform API",
+  });
 });
 
 export default app;
