@@ -4,6 +4,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes.js";
 import errorHandler from "./middleware/error.middleware.js";
+import studentRoutes from "./modules/auth/student/student.routes.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use(errorHandler);
+app.use("/api/students", studentRoutes);
 
 app.get("/", (req, res) => {
   res.json({

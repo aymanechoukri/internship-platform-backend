@@ -13,6 +13,8 @@ export const protect = async (req, res, next) => {
         .json({ success: false, message: "No token provided" });
     }
 
+    console.log("VERIFY SECRET:", process.env.JWT_SECRET);
+
     const decoded = jwt.verify(token, getJwtSecret());
 
     req.user = await User.findById(decoded.id).select("-password");

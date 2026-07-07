@@ -22,7 +22,7 @@ const studentSchema = new mongoose.Schema(
     },
 
     faculty: {
-      type: string,
+      type: String,
       required: true,
       trim: true,
     },
