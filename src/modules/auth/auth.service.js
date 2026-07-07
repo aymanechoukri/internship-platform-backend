@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import User from "../../models/User.js";
 import { generateToken } from "../../utils/jwt.js";
+import AppError from "../../utils/AppError.js";
 
 export const register = async (userData) => {
   const { name, email, password, role } = userData;
@@ -8,7 +9,7 @@ export const register = async (userData) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new AppError("User already exists", 400);
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,7 +28,7 @@ export const login = async ({ email, password }) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new AppError("User not found", 401);
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
