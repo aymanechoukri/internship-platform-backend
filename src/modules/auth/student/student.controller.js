@@ -10,3 +10,13 @@ export const createStudent = asyncHandler(async (req, res) => {
     data: student,
   });
 });
+
+export const getStudentByUserId = asyncHandler(async (req, res) => {
+  const student = await studentService.getStudentByUserId(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    message: "Student retrieved successfully",
+    data: student,
+  });
+});
