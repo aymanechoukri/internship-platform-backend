@@ -10,3 +10,13 @@ export const createCompany = asyncHandler(async (req, res) => {
     data: company,
   });
 });
+
+export const getCompanyByUserId = asyncHandler(async (req, res) => {
+  const company = await companyService.getCompanyByUserId(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    message: "Company retrieved successfully",
+    data: company,
+  });
+});

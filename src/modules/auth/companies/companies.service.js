@@ -15,3 +15,16 @@ export const createCompany = async (userId, companyData = {}) => {
     ...companyData,
   });
 };
+
+export const getCompanyByUserId = async (userId) => {
+  const company = await Company.findOne({
+    user: userId,
+  });
+
+  if (!company) {
+    throw new AppError("Company not found", 404);
+  }
+
+  await company.populate("user", "name email role");
+  return company;
+};
