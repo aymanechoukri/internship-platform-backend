@@ -16,7 +16,29 @@ export const getCompanyByUserId = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Company retrieved successfully",
+    message: "Company retrieved Successfully",
     data: company,
+  });
+});
+
+export const updateCompanyByUserId = asyncHandler(async (req, res) => {
+  const company = await companyService.updateCompanyByUserId(
+    req.user._id,
+    req.body,
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Company updated Successfully",
+    data: company,
+  });
+});
+
+export const deleteCompany = asyncHandler(async (req, res) => {
+  await companyService.deleteCompanyByUserId(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    message: "Company deleted successfully",
   });
 });
