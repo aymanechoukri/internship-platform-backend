@@ -48,7 +48,7 @@ const internshipSchema = new mongoose.Schema(
     ],
 
     deadline: {
-      type: date,
+      type: Date,
     },
 
     isActive: {
