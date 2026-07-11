@@ -1,10 +1,16 @@
 import express, { Router } from "express";
 import { protect } from "../../../middleware/auth.middleware.js";
 import authorize from "../../../middleware/authorize.middleware.js";
-import { createInternshipById } from "./internship.controller.js";
+import {
+  createInternshipById,
+  getAllInternship,
+  getInternshipById,
+} from "./internship.controller.js";
 
 const router = express.Router();
 
 router.post("/", protect, authorize("company"), createInternshipById);
+router.get("/", getAllInternship);
+router.get("/:id", getInternshipById);
 
 export default router;

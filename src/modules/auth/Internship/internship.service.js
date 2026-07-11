@@ -14,3 +14,33 @@ export const createInternship = async (userId, internshipData = {}) => {
     ...internshipData,
   });
 };
+
+export const getAllInternship = async (userId) => {
+  const internship = await Internship.find()
+    .populate({
+      path: "company",
+      populate: {
+        path: "user",
+        select: "name email role",
+      },
+    })
+    .sort({ createdAt: -1 });
+
+  return internship;
+};
+
+export const getInternshipById = async (id) => {
+  const internship = await Internship.findById(id).populate({
+    path: "company",
+    populate: {
+      path: "user",
+      select: "name email role",
+    },
+  });
+
+  if (!internship) {
+    throw new AppError("Internship Not Found", 404);
+  }
+
+  return internship;
+};
