@@ -44,3 +44,63 @@ export const getInternshipById = async (id) => {
 
   return internship;
 };
+
+export const updateInternship = async (userId, internshipId, updateData) => {
+  const company = await Company.findOne({ user: userId });
+
+  if (!company) {
+    throw new AppError("Company not Found", 404);
+  }
+  const internship = await Internship.findById(internshipId);
+
+  if (!internship) {
+    throw new AppError("Internship not Found", 404);
+  }
+
+  if (!internship.company.equals(company._id)) {
+    throw new AppError(
+      "You do not have permission to update this internship",
+      403,
+    );
+  }
+
+  const updatedInternship = await Internship.findByIdAndUpdate(
+    internshipId,
+    updateData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  ).populate({
+    path: "company",
+    populate: {
+      path: "user",
+      select: "name email role",
+    },
+  });
+
+  return updatedInternship;
+};
+
+export const deleteInernshipById = async (userId, internshipId) => {
+  const company = await Company.findOne({ user: userId });
+
+  if (!company) {
+    throw new AppError("Company not Found", 404);
+  }
+
+  const internship = await Internship.findById(internshipId);
+
+  if (!internship) {
+    throw new AppError("Internship not found", 404);
+  }
+
+  if (!internship.company.equals(company._id)) {
+    throw new AppError(
+      "You do not have permission to update this internship",
+      403,
+    );
+  }
+
+  await internship.deleteOne();
+};
