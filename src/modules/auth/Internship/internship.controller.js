@@ -15,12 +15,18 @@ export const createInternshipById = asyncHandler(async (req, res) => {
 });
 
 export const getAllInternship = asyncHandler(async (req, res) => {
-  const internship = await internshipService.getAllInternship();
+  const result = await internshipService.getAllInternship(req.query);
 
   res.status(200).json({
     success: true,
     message: "Internships retrieved successfully",
-    data: internship,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: Math.ceil(result.total / result.limit),
+    },
+    data: result.internships,
   });
 });
 

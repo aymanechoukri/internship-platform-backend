@@ -15,8 +15,45 @@ export const createInternship = async (userId, internshipData = {}) => {
   });
 };
 
-export const getAllInternship = async (userId) => {
-  const internship = await Internship.find()
+export const getAllInternship = async (query = {}) => {
+  const filter = {};
+
+  if (query.search) {
+    filter.$or = [
+      {
+        title: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+      {
+        description: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+    ];
+  }
+
+  if (query.location) {
+    filter.location = query.location;
+  }
+
+  if (query.type) {
+    filter.type = query.type;
+  }
+
+  if (query.skill) {
+    filter.skills = query.skill;
+  }
+
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+
+  const skip = (page - 1) * limit;
+  const total = await Internship.countDocuments(filter);
+
+  const internships = await Internship.find(filter)
     .populate({
       path: "company",
       populate: {
@@ -24,9 +61,16 @@ export const getAllInternship = async (userId) => {
         select: "name email role",
       },
     })
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
 
-  return internship;
+  return {
+    total,
+    page,
+    limit,
+    internships,
+  };
 };
 
 export const getInternshipById = async (id) => {
