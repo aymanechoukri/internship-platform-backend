@@ -9,6 +9,7 @@ import companyRoute from "./modules/auth/companies/companies.routes.js";
 import internshipRoute from "./modules/auth/Internship/internship.routes.js";
 import applicationRoute from "./modules/auth/application/application.routes.js";
 import messageRoute from "./modules/auth/message/message.routes.js";
+import notificationRoute from "./modules/notification/notification.routes.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/companies", companyRoute);
 app.use("/api/internship", internshipRoute);
 app.use("/api/applications", applicationRoute);
 app.use("/api/messages", messageRoute);
+app.use("/api/notifications", notificationRoute);
 
 app.get("/", (req, res) => {
   res.json({
