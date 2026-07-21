@@ -3,7 +3,9 @@ import { protect } from "../../../middleware/auth.middleware.js";
 import authorize from "../../../middleware/authorize.middleware.js";
 import {
   creatApplication,
+  getInternshipApplications,
   getMyApplications,
+  updateApplicationStatus,
 } from "./application.controller.js";
 
 const router = express.Router();
@@ -15,6 +17,12 @@ router.get(
   protect,
   authorize("company"),
   getInternshipApplications,
+);
+router.patch(
+  "/:applicationId/status",
+  protect,
+  authorize("company"),
+  updateApplicationStatus,
 );
 
 export default router;

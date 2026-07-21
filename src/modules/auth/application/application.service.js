@@ -97,3 +97,47 @@ export const getInternshipApplications = async (userId, internshipId) => {
 
   return applications;
 };
+
+export const updateApplicationStatus = async (
+  userId,
+  applicationId,
+  status
+) => {
+  // Check status
+  if (!["Accepted", "Rejected"].includes(status)) {
+    throw new AppError("Invalid status", 400);
+  }
+
+  // Find Company
+  const company = await Company.findOne({ user: userId });
+
+  if (!company) {
+    throw new AppError("Company not found", 404);
+  }
+
+  // Find Application
+  const application = await Application.findById(applicationId);
+
+  if (!application) {
+    throw new AppError("Application not found", 404);
+  }
+
+  // Find Internship
+  const internship = await Internship.findById(application.internship);
+
+  if (!internship) {
+    throw new AppError("Internship not found", 404);
+  }
+
+  // Ownership Check
+  if (!internship.company.equals(company._id)) {
+    throw new AppError("Forbidden", 403);
+  }
+
+  // Update Status
+  application.status = status;
+
+  await application.save();
+
+  return application;
+};

@@ -36,3 +36,17 @@ export const getInternshipApplications = asyncHandler(async (req, res) => {
     data: applications,
   });
 });
+
+export const updateApplicationStatus = asyncHandler(async (req, res) => {
+  const application = await applicationService.updateApplicationStatus(
+    req.user._id,
+    req.params.applicationId,
+    req.body.status
+  );
+
+  res.status(200).json({
+    success: true,
+    message: `Application ${req.body.status.toLowerCase()} successfully`,
+    data: application,
+  });
+});
