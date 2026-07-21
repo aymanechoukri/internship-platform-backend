@@ -141,3 +141,29 @@ export const updateApplicationStatus = async (
 
   return application;
 };
+
+export const withdrawApplication = async (userId, applicationId) => {
+  // Find Student
+  const student = await Student.findOne({ user: userId });
+
+  if (!student) {
+    throw new AppError("Student not found", 404);
+  }
+
+  // Find Application
+  const application = await Application.findById(applicationId);
+
+  if (!application) {
+    throw new AppError("Application not found", 404);
+  }
+
+  // Ownership Check
+  if (!application.student.equals(student._id)) {
+    throw new AppError("Forbidden", 403);
+  }
+
+  // Delete Application
+  await application.deleteOne();
+
+  return;
+};

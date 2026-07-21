@@ -50,3 +50,15 @@ export const updateApplicationStatus = asyncHandler(async (req, res) => {
     data: application,
   });
 });
+
+export const withdrawApplication = asyncHandler(async (req, res) => {
+  await applicationService.withdrawApplication(
+    req.user._id,
+    req.params.applicationId
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Application withdrawn successfully",
+  });
+});

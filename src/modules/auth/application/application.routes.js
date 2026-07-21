@@ -6,6 +6,7 @@ import {
   getInternshipApplications,
   getMyApplications,
   updateApplicationStatus,
+  withdrawApplication,
 } from "./application.controller.js";
 
 const router = express.Router();
@@ -23,6 +24,12 @@ router.patch(
   protect,
   authorize("company"),
   updateApplicationStatus,
+);
+router.delete(
+  "/:applicationId",
+  protect,
+  authorize("student"),
+  withdrawApplication,
 );
 
 export default router;
