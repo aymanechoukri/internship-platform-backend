@@ -13,3 +13,15 @@ export const creatApplication = asyncHandler(async (req, res) => {
     data: application,
   });
 });
+
+export const getMyApplications = asyncHandler(async (req, res) => {
+  const applications = await applicationService.getMyApplications(
+    req.user._id
+  );
+
+  res.status(200).json({
+    success: true,
+    count: applications.length,
+    data: applications,
+  });
+});

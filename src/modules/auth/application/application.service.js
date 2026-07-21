@@ -34,3 +34,31 @@ export const creatApplication = async (userId, internshipId) => {
 
   return application;
 };
+
+
+export const getMyApplications = async (userId) => {
+  // Find Student
+  const student = await Student.findOne({ user: userId });
+
+  if (!student) {
+    throw new AppError("Student not found", 404);
+  }
+
+  // Get Applications
+  const applications = await Application.find({
+    student: student._id,
+  })
+    .populate({
+      path: "internship",
+      populate: {
+        path: "company",
+        populate: {
+          path: "user",
+          select: "name email role",
+        },
+      },
+    })
+    .sort({ createdAt: -1 });
+
+  return applications;
+};
