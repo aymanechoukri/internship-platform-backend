@@ -10,6 +10,7 @@ import internshipRoute from "./modules/auth/Internship/internship.routes.js";
 import applicationRoute from "./modules/auth/application/application.routes.js";
 import messageRoute from "./modules/auth/message/message.routes.js";
 import notificationRoute from "./modules/notification/notification.routes.js";
+import cvRoute from "./modules/cv/cv.routes.js";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/internship", internshipRoute);
 app.use("/api/applications", applicationRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/notifications", notificationRoute);
+app.use("/api/cvs", cvRoute);
 
 app.get("/", (req, res) => {
   res.json({
