@@ -35,7 +35,6 @@ export const creatApplication = async (userId, internshipId) => {
   return application;
 };
 
-
 export const getMyApplications = async (userId) => {
   // Find Student
   const student = await Student.findOne({ user: userId });
@@ -56,6 +55,42 @@ export const getMyApplications = async (userId) => {
           path: "user",
           select: "name email role",
         },
+      },
+    })
+    .sort({ createdAt: -1 });
+
+  return applications;
+};
+
+export const getInternshipApplications = async (userId, internshipId) => {
+  // Find Company
+  const company = await Company.findOne({ user: userId });
+
+  if (!company) {
+    throw new AppError("Company not found", 404);
+  }
+
+  // Find Internship
+  const internship = await Internship.findById(internshipId);
+
+  if (!internship) {
+    throw new AppError("Internship not found", 404);
+  }
+
+  // Ownership Check
+  if (!internship.company.equals(company._id)) {
+    throw new AppError("Forbidden", 403);
+  }
+
+  // Get Applications
+  const applications = await Application.find({
+    internship: internship._id,
+  })
+    .populate({
+      path: "student",
+      populate: {
+        path: "user",
+        select: "name email",
       },
     })
     .sort({ createdAt: -1 });
