@@ -4,6 +4,8 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import AppError from "./utils/AppError.js";
 import errorHandler from "./middleware/error.middleware.js";
+import connectDB from "./config/db.js";
+import { getJwtSecret } from "./utils/jwt.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import studentRoutes from "./modules/auth/student/student.routes.js";
 import companyRoute from "./modules/auth/companies/companies.routes.js";
@@ -21,6 +23,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
+// Ensure required secrets and the database are available before handling API requests.
+app.use(async (req, res, next) => {
+  try {
+    getJwtSecret();
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -34,7 +47,7 @@ app.use("/api/companies", companyRoute);
 app.use("/api/internship", internshipRoute);
 app.use("/api/applications", applicationRoute);
 app.use("/api/messages", messageRoute);
-app.use("/api/notifications", notificationRoute);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/cvs", cvRoute);
 
 // Handle undefined routes
