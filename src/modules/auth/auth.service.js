@@ -3,10 +3,25 @@ import User from "../../models/User.js";
 import { generateToken } from "../../utils/jwt.js";
 import AppError from "../../utils/AppError.js";
 
-export const register = async (userData) => {
+export const register = async (userData = {}) => {
   const { name, email, password } = userData;
+  const requestedRole = userData.role ?? "student";
 
-  const existingUser = await User.findOne({ email });
+  if (!["student", "company"].includes(requestedRole)) {
+    throw new AppError("Account type must be student or company", 400);
+  }
+  if (typeof name !== "string" || !name.trim()) {
+    throw new AppError("Name is required", 400);
+  }
+  if (typeof email !== "string" || !email.trim()) {
+    throw new AppError("Email is required", 400);
+  }
+  if (typeof password !== "string" || password.length < 8) {
+    throw new AppError("Password must be at least 8 characters", 400);
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const existingUser = await User.findOne({ email: normalizedEmail });
 
   if (existingUser) {
     throw new AppError("User already exists", 400);
@@ -15,10 +30,10 @@ export const register = async (userData) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const createdUser = await User.create({
-    name,
-    email,
+    name: name.trim(),
+    email: normalizedEmail,
     password: hashedPassword,
-    role: "student",
+    role: requestedRole,
   });
 
   return createdUser;
