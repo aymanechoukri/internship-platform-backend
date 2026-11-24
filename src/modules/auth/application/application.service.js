@@ -4,6 +4,7 @@ import Student from "../../../models/Student.js";
 import Internship from "../../../models/Internship.js";
 import Company from "../../../models/Companies.js";
 import Notification from "../../../models/Notification.js";
+import CV from "../../../models/CV.js";
 
 export const creatApplication = async (userId, internshipId) => {
   const student = await Student.findOne({
