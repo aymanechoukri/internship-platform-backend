@@ -15,9 +15,9 @@ export const creatApplication = async (userId, internshipId) => {
     throw new AppError("Student Not Found", 404);
   }
 
-  const internship = await Internship.findById(internshipId);
+  const internship = await Internship.findById(internshipId).populate("company");
 
-  if (!internship) {
+  if (!internship || !internship.isActive || internship.moderationStatus !== "approved" || internship.company?.verificationStatus !== "approved") {
     throw new AppError("Internship Not Found", 404);
   }
 
@@ -158,6 +158,10 @@ export const updateApplicationStatus = async (
   // Ownership Check
   if (!internship.company.equals(company._id)) {
     throw new AppError("Forbidden", 403);
+  }
+
+  if (application.status !== "Pending") {
+    throw new AppError("This application has already been reviewed", 409);
   }
 
   // Update Status
