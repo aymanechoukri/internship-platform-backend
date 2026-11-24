@@ -45,11 +45,15 @@ export const creatApplication = async (userId, internshipId) => {
   }
 
   if (internship.company?.user) {
-    await Notification.create({
-      user: internship.company.user,
-      title: "New internship application",
-      content: `A student applied for ${internship.title}. Review the application in your company dashboard.`,
-    });
+    try {
+      await Notification.create({
+        user: internship.company.user,
+        title: "New internship application",
+        content: `A student applied for ${internship.title}. Review the application in your company dashboard.`,
+      });
+    } catch {
+      // The application remains successful if the notification service is unavailable.
+    }
   }
 
   return application;
@@ -187,11 +191,15 @@ export const updateApplicationStatus = async (
   await application.save();
   const student = await Student.findById(application.student).select("user");
   if (student?.user) {
-    await Notification.create({
-      user: student.user,
-      title: `Application ${status.toLowerCase()}`,
-      content: `Your application for ${internship.title} was ${status.toLowerCase()} by the company.`,
-    });
+    try {
+      await Notification.create({
+        user: student.user,
+        title: `Application ${status.toLowerCase()}`,
+        content: `Your application for ${internship.title} was ${status.toLowerCase()} by the company.`,
+      });
+    } catch {
+      // The status update remains successful if the notification service is unavailable.
+    }
   }
 
   return application;
