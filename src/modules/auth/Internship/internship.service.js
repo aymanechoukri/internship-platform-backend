@@ -18,7 +18,9 @@ export const createInternship = async (userId, internshipData = {}) => {
 };
 
 export const getAllInternship = async (query = {}) => {
+  const approvedCompanyIds = await Company.distinct("_id", { verificationStatus: "approved" });
   const filter = {
+    company: { $in: approvedCompanyIds },
     isActive: true,
     $or: [{ moderationStatus: "approved" }, { moderationStatus: { $exists: false } }],
   };
@@ -46,7 +48,7 @@ export const getInternshipById = async (id) => {
     isActive: true,
     $or: [{ moderationStatus: "approved" }, { moderationStatus: { $exists: false } }],
   }).populate({ path: "company", populate: { path: "user", select: "name email role" } });
-  if (!internship) throw new AppError("Internship not found", 404);
+  if (!internship || internship.company?.verificationStatus !== "approved") throw new AppError("Internship not found", 404);
   return internship;
 };
 
