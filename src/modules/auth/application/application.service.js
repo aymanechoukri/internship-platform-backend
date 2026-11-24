@@ -4,6 +4,7 @@ import Student from "../../../models/Student.js";
 import Internship from "../../../models/Internship.js";
 import Company from "../../../models/Companies.js";
 import Notification from "../../../models/Notification.js";
+import CV from "../../../models/CV.js";
 
 export const creatApplication = async (userId, internshipId) => {
   const student = await Student.findOne({
@@ -69,10 +70,22 @@ export const getCompanyApplications = async (userId) => {
   if (!company) throw new AppError("Company not found", 404);
   const internships = await Internship.find({ company: company._id }).select("_id");
   const internshipIds = internships.map((item) => item._id);
-  return Application.find({ internship: { $in: internshipIds } })
+  const applications = await Application.find({ internship: { $in: internshipIds } })
     .populate({ path: "student", populate: { path: "user", select: "name email" } })
     .populate("internship", "title location type")
     .sort({ createdAt: -1 });
+  const studentIds = [...new Set(applications.map((item) => String(item.student?._id)).filter(Boolean))];
+  const cvs = await CV.find({ student: { $in: studentIds } }).select("fileName fileSize createdAt student").sort({ createdAt: -1 });
+  const cvMap = new Map();
+  for (const cv of cvs) {
+    const key = String(cv.student);
+    if (!cvMap.has(key)) cvMap.set(key, []);
+    cvMap.get(key).push({ _id: cv._id, fileName: cv.fileName, fileSize: cv.fileSize, createdAt: cv.createdAt });
+  }
+  return applications.map((application) => ({
+    ...application.toObject(),
+    cvs: cvMap.get(String(application.student?._id)) || [],
+  }));
 };
 
 export const getInternshipApplications = async (userId, internshipId) => {
