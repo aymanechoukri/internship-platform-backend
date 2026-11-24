@@ -30,6 +30,15 @@ export const getCVById = asyncHandler(async (req, res) => {
   });
 });
 
+export const downloadCV = asyncHandler(async (req, res) => {
+  const cv = await cvService.getCVFileById(req.user._id, req.params.cvId);
+
+  res.type("application/pdf");
+  res.attachment(cv.fileName);
+  res.setHeader("Content-Length", cv.fileSize);
+  res.send(cv.fileData);
+});
+
 export const deleteCV = asyncHandler(async (req, res) => {
   const result = await cvService.deleteCV(req.user._id, req.params.cvId);
 
