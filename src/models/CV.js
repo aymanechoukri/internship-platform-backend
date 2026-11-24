@@ -38,6 +38,13 @@ const cvSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+cvSchema.set("toJSON", {
+  transform: (doc, ret) => {
+    delete ret.fileData;
+    return ret;
+  },
+});
+
 cvSchema.index({ student: 1, createdAt: -1 });
 
 export default mongoose.model("CV", cvSchema);
