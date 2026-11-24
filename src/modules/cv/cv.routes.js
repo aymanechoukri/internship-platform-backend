@@ -6,20 +6,15 @@ import {
   uploadCV,
   getMyCVs,
   getCVById,
+  downloadCV,
   deleteCV,
 } from "./cv.controller.js";
 
 const router = express.Router();
 
-router.post(
-  "/",
-  protect,
-  authorize(["student"]),
-  uploadSingleCV,
-  uploadCV,
-);
-
+router.post("/", protect, authorize(["student"]), uploadSingleCV, uploadCV);
 router.get("/me", protect, authorize(["student"]), getMyCVs);
+router.get("/:cvId/download", protect, authorize(["student"]), downloadCV);
 router.get("/:cvId", protect, authorize(["student"]), getCVById);
 router.delete("/:cvId", protect, authorize(["student"]), deleteCV);
 
