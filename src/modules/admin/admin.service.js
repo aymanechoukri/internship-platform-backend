@@ -187,6 +187,15 @@ export const setInternshipStatus = async (adminId, internshipId, isActive) => {
   if (typeof isActive !== "boolean") throw new AppError("isActive must be a boolean", 400);
   const internship = await Internship.findById(internshipId);
   if (!internship) throw new AppError("Internship not found", 404);
+  if (isActive && !["approved", undefined].includes(internship.moderationStatus)) {
+    throw new AppError("Only approved internships can be published", 400);
+  }
+  if (isActive) {
+    const company = await Company.findById(internship.company);
+    if (company && !["approved", undefined].includes(company.verificationStatus)) {
+      throw new AppError("Only verified companies can publish internships", 400);
+    }
+  }
   internship.isActive = isActive;
   await internship.save();
   await logAction(adminId, isActive ? "internship.published" : "internship.paused", "Internship", internship._id);
@@ -199,10 +208,10 @@ export const reviewInternship = async (adminId, internshipId, decision, reason =
   const internship = await Internship.findById(internshipId).populate("company");
   if (!internship) throw new AppError("Internship not found", 404);
   internship.moderationStatus = decision;
+  internship.isActive = decision === "approved";
   internship.reviewedAt = new Date();
   internship.reviewedBy = adminId;
   internship.moderationReason = decision === "rejected" ? reason.trim().slice(0, 500) : "";
-  if (decision === "rejected") internship.isActive = false;
   await internship.save();
   if (internship.company?.user) await notify(internship.company.user, decision === "approved" ? "Internship approved" : "Internship rejected",
     decision === "approved" ? `Your internship “${internship.title}” has been approved.` : `Your internship “${internship.title}” was rejected: ${internship.moderationReason}`);
