@@ -89,13 +89,21 @@ export const getAllInternship = async (query = {}) => {
     isActive: true,
     $or: [{ moderationStatus: "approved" }, { moderationStatus: { $exists: false } }],
   };
-  if (query.search) filter.$and = [...(filter.$and ?? []), { $or: [
-    { title: { $regex: String(query.search).slice(0, 80), $options: "i" } },
-    { description: { $regex: String(query.search).slice(0, 80), $options: "i" } },
-  ] }];
-  if (query.location) filter.location = query.location;
+  if (query.search) {
+    const search = String(query.search).trim().slice(0, 80);
+    const matchingCompanies = await Company.distinct("_id", {
+      verificationStatus: "approved",
+      companyName: { $regex: search, $options: "i" },
+    });
+    filter.$and = [...(filter.$and ?? []), { $or: [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+      { company: { $in: matchingCompanies } },
+    ] }];
+  }
+  if (query.location) filter.location = { $regex: String(query.location).trim().slice(0, 80), $options: "i" };
   if (query.type) filter.type = query.type;
-  if (query.skill) filter.skills = query.skill;
+  if (query.skill) filter.skills = { $regex: String(query.skill).trim().slice(0, 60), $options: "i" };
 
   const page = Math.max(1, Number(query.page) || 1);
   const limit = Math.min(50, Math.max(1, Number(query.limit) || 10));
