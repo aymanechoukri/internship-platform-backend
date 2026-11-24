@@ -136,7 +136,8 @@ export const deleteUser = async (adminId, userId) => {
 export const listCompanies = async (query = {}) => {
   const { page, limit, skip } = getPagination(query);
   const filter = {};
-  if (["pending", "approved", "rejected"].includes(query.status)) filter.verificationStatus = query.status;
+  if (query.status === "pending") filter.$or = [{ verificationStatus: "pending" }, { verificationStatus: { $exists: false } }];
+  if (["approved", "rejected"].includes(query.status)) filter.verificationStatus = query.status;
   if (query.search?.trim()) {
     const pattern = new RegExp(escapeRegex(query.search.trim().slice(0, 80)), "i");
     filter.$or = [{ companyName: pattern }, { location: pattern }, { industry: pattern }];
@@ -169,7 +170,8 @@ export const listInternships = async (query = {}) => {
   const { page, limit, skip } = getPagination(query);
   const filter = {};
   if (["active", "inactive"].includes(query.status)) filter.isActive = query.status === "active";
-  if (["pending", "approved", "rejected"].includes(query.moderationStatus)) filter.moderationStatus = query.moderationStatus;
+  if (query.moderationStatus === "pending") filter.$or = [{ moderationStatus: "pending" }, { moderationStatus: { $exists: false } }];
+  if (["approved", "rejected"].includes(query.moderationStatus)) filter.moderationStatus = query.moderationStatus;
   if (query.search?.trim()) {
     const pattern = new RegExp(escapeRegex(query.search.trim().slice(0, 80)), "i");
     filter.$or = [{ title: pattern }, { location: pattern }, { description: pattern }];
