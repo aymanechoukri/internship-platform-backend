@@ -10,9 +10,15 @@ export const createCompany = async (userId, companyData = {}) => {
     throw new AppError("Company already exists", 400);
   }
 
+  const allowedFields = ["companyName", "website", "location", "industry", "description"];
+  const safeData = Object.fromEntries(
+    allowedFields.filter((key) => companyData[key] !== undefined).map((key) => [key, companyData[key]]),
+  );
+
   return await Company.create({
     user: userId,
-    ...companyData,
+    ...safeData,
+    verificationStatus: "pending",
   });
 };
 
