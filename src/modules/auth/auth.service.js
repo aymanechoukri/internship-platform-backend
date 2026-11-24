@@ -37,6 +37,10 @@ export const login = async ({ email, password }) => {
     throw new AppError("Invalid email or password", 401);
   }
 
+  if (user.isActive === false) {
+    throw new AppError("This account has been disabled. Contact the platform administrator.", 403);
+  }
+
   const token = generateToken(user._id);
 
   return { user, token };
