@@ -4,7 +4,7 @@ import { generateToken } from "../../utils/jwt.js";
 import AppError from "../../utils/AppError.js";
 
 export const register = async (userData) => {
-  const { name, email, password, role } = userData;
+  const { name, email, password } = userData;
 
   const existingUser = await User.findOne({ email });
 
@@ -18,14 +18,14 @@ export const register = async (userData) => {
     name,
     email,
     password: hashedPassword,
-    role,
+    role: "student",
   });
 
   return createdUser;
 };
 
 export const login = async ({ email, password }) => {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
     throw new AppError("User not found", 401);
@@ -34,7 +34,7 @@ export const login = async ({ email, password }) => {
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    throw new Error("Invalid password");
+    throw new AppError("Invalid email or password", 401);
   }
 
   const token = generateToken(user._id);
