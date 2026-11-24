@@ -1,6 +1,5 @@
 import AppError from "../../utils/AppError.js";
 import User from "../../models/User.js";
-import Student from "../../models/Student.js";
 import Company from "../../models/Companies.js";
 import Internship from "../../models/Internship.js";
 import Application from "../../models/application.js";
@@ -79,7 +78,7 @@ export const listUsers = async (query = {}) => {
   const { page, limit, skip } = getPagination(query);
   const filter = {};
   if (["student", "company", "admin"].includes(query.role)) filter.role = query.role;
-  if (query.status === "active") filter.isActive = true;
+  if (query.status === "active") filter.isActive = { $ne: false };
   if (query.status === "disabled") filter.isActive = false;
   if (typeof query.search === "string" && query.search.trim()) {
     const pattern = new RegExp(escapeRegex(query.search.trim().slice(0, 80)), "i");
@@ -103,7 +102,7 @@ export const setUserStatus = async (adminId, userId, isActive) => {
   if (!user) throw new AppError("User not found", 404);
 
   if (user.role === "admin" && user.isActive !== false && !isActive) {
-    const activeAdmins = await User.countDocuments({ role: "admin", isActive: true });
+    const activeAdmins = await User.countDocuments({ role: "admin", isActive: { $ne: false } });
     if (activeAdmins <= 1) throw new AppError("The last active administrator cannot be disabled", 400);
   }
 
