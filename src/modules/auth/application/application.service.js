@@ -35,6 +35,14 @@ export const creatApplication = async (userId, internshipId) => {
     internship: internship._id,
   });
 
+  if (internship.company?.user) {
+    await Notification.create({
+      user: internship.company.user,
+      title: "New internship application",
+      content: `A student applied for ${internship.title}. Review the application in your company dashboard.`,
+    });
+  }
+
   return application;
 };
 
