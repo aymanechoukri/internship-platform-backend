@@ -14,7 +14,7 @@ export const creatApplication = async (userId, internshipId) => {
     throw new AppError("Student Not Found", 404);
   }
 
-  if (!/^[a-f\\d]{24}$/i.test(String(internshipId))) throw new AppError("Internship not found", 404);
+  if (!/^[a-f\d]{24}$/i.test(String(internshipId))) throw new AppError("Internship not found", 404);
   const internship = await Internship.findById(internshipId).populate("company");
 
   if (!internship || !internship.isActive || (internship.moderationStatus && internship.moderationStatus !== "approved") || internship.company?.verificationStatus !== "approved") {
