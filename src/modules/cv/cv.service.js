@@ -1,6 +1,10 @@
 import AppError from "../../utils/AppError.js";
 import CV from "../../models/CV.js";
 import Student from "../../models/Student.js";
+import mongoose from "mongoose";
+import Company from "../../models/Companies.js";
+import Internship from "../../models/Internship.js";
+import Application from "../../models/application.js";
 
 const getStudentForUser = async (userId) => {
   const student = await Student.findOne({ user: userId });
@@ -88,4 +92,24 @@ export const deleteCV = async (userId, cvId) => {
   await cv.deleteOne();
 
   return { message: "CV deleted successfully" };
+};
+
+
+export const getApplicantCVFile = async (userId, cvId) => {
+  const company = await Company.findOne({ user: userId });
+  if (!company) throw new AppError("Company not found", 404);
+  if (!mongoose.isValidObjectId(cvId)) throw new AppError("CV not found", 404);
+
+  const cv = await CV.findById(cvId).select("+fileData");
+  if (!cv) throw new AppError("CV not found", 404);
+
+  const internshipIds = await Internship.find({ company: company._id }).distinct("_id");
+  const application = await Application.findOne({
+    student: cv.student,
+    internship: { $in: internshipIds },
+  }).select("_id");
+
+  if (!application) throw new AppError("You can only access CVs of candidates who applied to your internships", 403);
+  if (!cv.fileData) throw new AppError("This CV file is not available on the server", 410);
+  return cv;
 };
