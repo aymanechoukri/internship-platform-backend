@@ -47,7 +47,7 @@ app.use("/api/companies", companyRoute);
 app.use("/api/internship", internshipRoute);
 app.use("/api/applications", applicationRoute);
 app.use("/api/messages", messageRoute);
-app.use("/api/notifications", notificationRoutes);
+app.use("/api/notifications", notificationRoute);
 app.use("/api/cvs", cvRoute);
 
 // Handle undefined routes
