@@ -4,7 +4,6 @@ import Student from "../../../models/Student.js";
 import Internship from "../../../models/Internship.js";
 import Company from "../../../models/Companies.js";
 import Notification from "../../../models/Notification.js";
-import CV from "../../../models/CV.js";
 
 export const creatApplication = async (userId, internshipId) => {
   const student = await Student.findOne({
@@ -15,10 +14,14 @@ export const creatApplication = async (userId, internshipId) => {
     throw new AppError("Student Not Found", 404);
   }
 
+  if (!/^[a-f\\d]{24}$/i.test(String(internshipId))) throw new AppError("Internship not found", 404);
   const internship = await Internship.findById(internshipId).populate("company");
 
-  if (!internship || !internship.isActive || internship.moderationStatus !== "approved" || internship.company?.verificationStatus !== "approved") {
-    throw new AppError("Internship Not Found", 404);
+  if (!internship || !internship.isActive || (internship.moderationStatus && internship.moderationStatus !== "approved") || internship.company?.verificationStatus !== "approved") {
+    throw new AppError("This internship is not available for applications", 404);
+  }
+  if (internship.deadline && new Date(internship.deadline).getTime() < Date.now()) {
+    throw new AppError("The application deadline has passed", 400);
   }
 
   const existingApplication = await Application.findOne({
@@ -30,10 +33,16 @@ export const creatApplication = async (userId, internshipId) => {
     throw new AppError("You have already applied for this internship", 400);
   }
 
-  const application = await Application.create({
-    student: student._id,
-    internship: internship._id,
-  });
+  let application;
+  try {
+    application = await Application.create({
+      student: student._id,
+      internship: internship._id,
+    });
+  } catch (error) {
+    if (error?.code === 11000) throw new AppError("You have already applied for this internship", 409);
+    throw error;
+  }
 
   if (internship.company?.user) {
     await Notification.create({
@@ -206,6 +215,10 @@ export const withdrawApplication = async (userId, applicationId) => {
   // Ownership Check
   if (!application.student.equals(student._id)) {
     throw new AppError("Forbidden", 403);
+  }
+
+  if (application.status !== "Pending") {
+    throw new AppError("Only pending applications can be withdrawn", 409);
   }
 
   // Delete Application
