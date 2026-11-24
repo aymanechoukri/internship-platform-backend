@@ -128,7 +128,6 @@ export const deleteUser = async (adminId, userId) => {
     await Company.deleteMany({ user: user._id });
   }
   await Notification.deleteMany({ user: user._id });
-  await AdminLog.updateMany({ admin: user._id }, { $set: { admin: adminId } });
   await user.deleteOne();
   await logAction(adminId, "user.deleted", "User", user._id, "Related student/company profiles, internships and applications were deleted.");
   return { id: userId, deleted: true };
