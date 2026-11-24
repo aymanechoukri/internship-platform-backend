@@ -2,6 +2,8 @@ import AppError from "../../../utils/AppError.js";
 import Application from "../../../models/application.js";
 import Student from "../../../models/Student.js";
 import Internship from "../../../models/Internship.js";
+import Company from "../../../models/Companies.js";
+import Notification from "../../../models/Notification.js";
 
 export const creatApplication = async (userId, internshipId) => {
   const student = await Student.findOne({
@@ -60,6 +62,17 @@ export const getMyApplications = async (userId) => {
     .sort({ createdAt: -1 });
 
   return applications;
+};
+
+export const getCompanyApplications = async (userId) => {
+  const company = await Company.findOne({ user: userId });
+  if (!company) throw new AppError("Company not found", 404);
+  const internships = await Internship.find({ company: company._id }).select("_id");
+  const internshipIds = internships.map((item) => item._id);
+  return Application.find({ internship: { $in: internshipIds } })
+    .populate({ path: "student", populate: { path: "user", select: "name email" } })
+    .populate("internship", "title location type")
+    .sort({ createdAt: -1 });
 };
 
 export const getInternshipApplications = async (userId, internshipId) => {
@@ -138,6 +151,14 @@ export const updateApplicationStatus = async (
   application.status = status;
 
   await application.save();
+  const student = await Student.findById(application.student).select("user");
+  if (student?.user) {
+    await Notification.create({
+      user: student.user,
+      title: `Application ${status.toLowerCase()}`,
+      content: `Your application for ${internship.title} was ${status.toLowerCase()} by the company.`,
+    });
+  }
 
   return application;
 };
