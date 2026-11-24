@@ -14,6 +14,7 @@ import applicationRoute from "./modules/auth/application/application.routes.js";
 import messageRoute from "./modules/auth/message/message.routes.js";
 import notificationRoute from "./modules/notification/notification.routes.js";
 import cvRoute from "./modules/cv/cv.routes.js";
+import adminRoutes from "./modules/admin/admin.routes.js";
 
 const app = express();
 
@@ -23,7 +24,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-// Ensure required secrets and the database are available before handling API requests.
 app.use(async (req, res, next) => {
   try {
     getJwtSecret();
@@ -35,13 +35,11 @@ app.use(async (req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Welcome to the Internship Platform API",
-  });
+  res.json({ success: true, message: "Welcome to the Internship Platform API" });
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/companies", companyRoute);
 app.use("/api/internship", internshipRoute);
@@ -50,12 +48,9 @@ app.use("/api/messages", messageRoute);
 app.use("/api/notifications", notificationRoute);
 app.use("/api/cvs", cvRoute);
 
-// Handle undefined routes
 app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Global error handling middleware (registered last)
 app.use(errorHandler);
-
 export default app;
