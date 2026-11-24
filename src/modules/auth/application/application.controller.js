@@ -24,6 +24,11 @@ export const getMyApplications = asyncHandler(async (req, res) => {
   });
 });
 
+export const getCompanyApplications = asyncHandler(async (req, res) => {
+  const applications = await applicationService.getCompanyApplications(req.user._id);
+  res.status(200).json({ success: true, count: applications.length, data: applications });
+});
+
 export const getInternshipApplications = asyncHandler(async (req, res) => {
   const applications = await applicationService.getInternshipApplications(
     req.user._id,
