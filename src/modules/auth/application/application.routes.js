@@ -3,6 +3,7 @@ import { protect } from "../../../middleware/auth.middleware.js";
 import authorize from "../../../middleware/authorize.middleware.js";
 import {
   creatApplication,
+  getCompanyApplications,
   getInternshipApplications,
   getMyApplications,
   updateApplicationStatus,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.post("/:internshipId", protect, authorize("student"), creatApplication);
 router.get("/me", protect, authorize("student"), getMyApplications);
+router.get("/company", protect, authorize("company"), getCompanyApplications);
 router.get(
   "/internship/:internshipId",
   protect,
