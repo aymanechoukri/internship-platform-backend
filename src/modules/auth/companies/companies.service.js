@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import AppError from "../../../utils/AppError.js";
 import Company from "../../../models/Companies.js";
 import Internship from "../../../models/Internship.js";
